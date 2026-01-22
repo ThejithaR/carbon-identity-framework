@@ -34,6 +34,7 @@ public class NodeConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private List<NodeEdge> edges = new ArrayList<>();
+    private List<ConditionDTO> conditions = new ArrayList<>();
     private String id;
     private String type;
     private boolean isFirstNode;

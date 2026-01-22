@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.flow.mgt.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * DTO class for Action.
@@ -28,6 +29,7 @@ public class ActionDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private String type;
     private ExecutorDTO executor;
+    private ArrayList<ConditionDTO> conditions;
     private String nextId;
 
     public ActionDTO() {
@@ -38,6 +40,7 @@ public class ActionDTO implements Serializable {
 
         this.type = builder.type;
         this.executor = builder.executor;
+        this.conditions = builder.conditions;
         this.nextId = builder.nextId;
     }
 
@@ -71,6 +74,14 @@ public class ActionDTO implements Serializable {
         this.nextId = nextId;
     }
 
+    public ArrayList<ConditionDTO> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(ArrayList<ConditionDTO> conditions) {
+        this.conditions = conditions;
+    }
+
     /**
      * Builder class to build {@link ActionDTO} objects.
      */
@@ -78,6 +89,7 @@ public class ActionDTO implements Serializable {
 
         private String type;
         private ExecutorDTO executor;
+        private ArrayList<ConditionDTO> conditions;
         private String nextId;
 
         public Builder type(String type) {
@@ -89,6 +101,12 @@ public class ActionDTO implements Serializable {
         public Builder executor(ExecutorDTO executor) {
 
             this.executor = executor;
+            return this;
+        }
+
+        public  Builder conditions(ArrayList<ConditionDTO> conditions) {
+
+            this.conditions = conditions;
             return this;
         }
 

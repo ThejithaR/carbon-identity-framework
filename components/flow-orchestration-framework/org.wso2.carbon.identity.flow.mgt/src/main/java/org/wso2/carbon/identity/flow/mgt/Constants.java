@@ -194,6 +194,7 @@ public class Constants {
         public static final String EXECUTION = "EXECUTION";
         public static final String WEBAUTHN = "WEBAUTHN";
         public static final String USER_ONBOARD = "USER_ONBOARD";
+        public static final String CONDITION = "CONDITION";
         public static final String END = "END";
 
         private StepTypes() {
@@ -218,6 +219,7 @@ public class Constants {
      */
     public static class ActionTypes {
 
+        public static final String CONDITIONAL = "CONDITIONAL";
         public static final String EXECUTOR = "EXECUTOR";
         public static final String NEXT = "NEXT";
 
@@ -236,6 +238,44 @@ public class Constants {
         private ExecutorTypes() {
 
         }
+    }
+
+    /**
+     * Constants for defined operator types.
+     */
+    public static class OperatorTypes {
+
+        public static final String EQUALS = "equals";
+        public static final String NOT_EQUALS = "not-equals";
+        public static final String GREATER_THAN = "greater-than";
+        public static final String LESS_THAN = "less-than";
+        public static final String GREATER_THAN_OR_EQUALS = "greater-than-or-equals";
+        public static final String LESS_THAN_OR_EQUALS = "less-than-or-equals";
+        public static final String CLOSED_RANGE = "closed-range";
+        public static final String OPEN_RANGE = "open-range";
+        public static final String CONTAINS = "contains";
+        public static final String NOT_CONTAINS = "not-contains";
+
+        private OperatorTypes() {
+
+        }
+    }
+
+    public static class PredicateTypes {
+
+        public static final String EXECUTOR = "executor";
+        public static final String CONTEXT_OBJECT = "context_object";
+
+        private PredicateTypes() {
+
+        }
+    }
+
+    public static class TargetTypes {
+
+        public static final String EXECUTOR = "executor";
+        public static final String CONTEXT_OBJECT = "context_object";
+        public static final String CONSTANT = "constant";
     }
 
     /**

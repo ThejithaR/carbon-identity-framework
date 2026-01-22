@@ -24,13 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.flow.mgt.Constants;
 import org.wso2.carbon.identity.flow.mgt.exception.FlowMgtClientException;
 import org.wso2.carbon.identity.flow.mgt.exception.FlowMgtFrameworkException;
-import org.wso2.carbon.identity.flow.mgt.model.ActionDTO;
-import org.wso2.carbon.identity.flow.mgt.model.ComponentDTO;
-import org.wso2.carbon.identity.flow.mgt.model.ExecutorDTO;
-import org.wso2.carbon.identity.flow.mgt.model.GraphConfig;
-import org.wso2.carbon.identity.flow.mgt.model.NodeConfig;
-import org.wso2.carbon.identity.flow.mgt.model.NodeEdge;
-import org.wso2.carbon.identity.flow.mgt.model.StepDTO;
+import org.wso2.carbon.identity.flow.mgt.model.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.wso2.carbon.identity.flow.mgt.Constants.ActionTypes.CONDITIONAL;
 import static org.wso2.carbon.identity.flow.mgt.Constants.ActionTypes.EXECUTOR;
 import static org.wso2.carbon.identity.flow.mgt.Constants.ActionTypes.NEXT;
 import static org.wso2.carbon.identity.flow.mgt.Constants.ComponentTypes.BUTTON;
@@ -59,6 +54,7 @@ import static org.wso2.carbon.identity.flow.mgt.Constants.ExecutorTypes.USER_ONB
 import static org.wso2.carbon.identity.flow.mgt.Constants.NodeTypes.DECISION;
 import static org.wso2.carbon.identity.flow.mgt.Constants.NodeTypes.PROMPT_ONLY;
 import static org.wso2.carbon.identity.flow.mgt.Constants.NodeTypes.TASK_EXECUTION;
+import static org.wso2.carbon.identity.flow.mgt.Constants.StepTypes.CONDITION;
 import static org.wso2.carbon.identity.flow.mgt.Constants.StepTypes.END;
 import static org.wso2.carbon.identity.flow.mgt.Constants.StepTypes.EXECUTION;
 import static org.wso2.carbon.identity.flow.mgt.Constants.StepTypes.REDIRECTION;
@@ -111,6 +107,9 @@ public class GraphBuilder {
                 case USER_ONBOARD:
                     processUserOnboardStep(step);
                     break;
+                case CONDITION:
+                    processConditionStep(step);
+                    break;
                 case END:
                     // Handle the explicitly defined end step.
                     processEndStep(step);
@@ -137,6 +136,28 @@ public class GraphBuilder {
         graphConfig.setNodeConfigs(nodeMap);
         graphConfig.setNodePageMappings(stepContentMap);
         return graphConfig;
+    }
+
+    private void processConditionStep(StepDTO step) throws FlowMgtClientException {
+
+        if (step.getData() == null) {
+            throw handleClientException(Constants.ErrorMessages.ERROR_CODE_STEP_DATA_NOT_FOUND, step.getId());
+        }
+        ActionDTO action = step.getData().getAction();
+        if (action == null) {
+            throw handleClientException(ERROR_CODE_ACTION_DATA_NOT_FOUND, step.getId(), step.getType());
+        }
+        if (!CONDITIONAL.equals(action.getType())) {
+            throw handleClientException(ERROR_CODE_INVALID_ACTION_TYPE, action.getType(), step.getId(), step.getType());
+        }
+        NodeConfig decisionNodeConfig = createDecisionNode(step.getId());
+        // Add conditions to the decision node.
+            //HERE
+        nodeMap.put(decisionNodeConfig.getId(), decisionNodeConfig);
+        for (ConditionDTO condition : action.getConditions()) {
+            createNodeFromCondition(condition, decisionNodeConfig.getId());
+        }
+        nodeEdges.add(new NodeEdge(decisionNodeConfig.getId(), action.getNextId(), null));
     }
 
     private void processExecutionStep(StepDTO step) throws FlowMgtClientException {
@@ -195,12 +216,12 @@ public class GraphBuilder {
                 processComponent(subComponent, stepNodes, stepId);
             }
         } else if (BUTTON.equals(component.getType())) {
-            validateStepActions(component.getAction(), stepNodes, component.getId(), stepId);
+            validateStepButtonActions(component.getAction(), stepNodes, component.getId(), stepId);
             stepNodes.add(createNodeFromAction(component.getAction(), component.getId()));
         }
     }
 
-    private void validateStepActions(ActionDTO action, List<NodeConfig> stepNodes, String id, String stepId)
+    private void validateStepButtonActions(ActionDTO action, List<NodeConfig> stepNodes, String id, String stepId)
             throws FlowMgtFrameworkException {
 
         if (action == null) {
@@ -219,6 +240,22 @@ public class GraphBuilder {
         }
     }
 
+//    private void validateStepConditionAction(ActionDTO action, List<NodeConfig> stepNodes, String id, String stepId)
+//            throws FlowMgtFrameworkException {
+//
+//        if (action == null) {
+//            throw handleClientException(ERROR_CODE_INVALID_ACTION_FOR_BUTTON, id);
+//        }
+//        if (action.getNextId() == null) {
+//            throw handleClientException(ERROR_CODE_NEXT_ACTION_NOT_FOUND, id);
+//        }
+//        if (CONDITIONAL.equals(action.getType())) {
+//            if (stepNodes.stream().anyMatch(nodeConfig -> (DECISION.equals(nodeConfig.getType())))) {
+//                throw handleClientException(ERROR_CODE_MULTIPLE_STEP_EXECUTORS, stepId);
+//            }
+//        }
+//    }
+
     private NodeConfig createNodeFromAction(ActionDTO action, String componentId)
             throws FlowMgtClientException {
 
@@ -232,6 +269,12 @@ public class GraphBuilder {
         }
         tempNodeInComponent.setNextNodeId(action.getNextId());
         return tempNodeInComponent;
+    }
+
+    private void createNodeFromCondition(ConditionDTO condition, String decisionNodeId) {
+        nodeMap.put(condition.getId(), createPagePromptNode(condition.getId()));
+        nodeEdges.add(new NodeEdge(decisionNodeId, condition.getId(), null));
+        nodeEdges.add(new NodeEdge(condition.getId(), condition.getNext(), null));
     }
 
     private void handleTempNodesInStep(List<NodeConfig> tempNodesInStep, StepDTO step) {
@@ -341,6 +384,18 @@ public class GraphBuilder {
                 .build();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Created a decision node " + id + ".");
+        }
+        return nodeConfig;
+    }
+
+    private NodeConfig createDecisionNodeWithConditions(String id, List<ConditionDTO> conditions) {
+
+        NodeConfig nodeConfig = new NodeConfig.Builder()
+                .id(id)
+                .type(DECISION)
+                .build();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Created a decision node " + id + " with conditions.");
         }
         return nodeConfig;
     }

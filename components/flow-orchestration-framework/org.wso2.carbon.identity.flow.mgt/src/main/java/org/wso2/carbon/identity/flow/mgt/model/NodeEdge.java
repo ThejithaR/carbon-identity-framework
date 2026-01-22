@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.flow.mgt.model;
 
 import java.io.Serializable;
 
+import org.wso2.carbon.identity.flow.mgt.model.ConditionDTO;
+
 /**
  * DTO class for NodeEdge in the graph.
  */
