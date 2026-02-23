@@ -28,8 +28,15 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.identity.action.execution.api.service.ActionExecutionRequestBuilder;
+import org.wso2.carbon.identity.action.execution.api.service.ActionExecutionResponseProcessor;
+import org.wso2.carbon.identity.action.execution.api.service.ActionExecutorService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.claim.metadata.mgt.ClaimMetadataManagementService;
 import org.wso2.carbon.identity.flow.execution.engine.FlowExecutionService;
+import org.wso2.carbon.identity.flow.execution.engine.executor.InFlowExtensionExecutor;
+import org.wso2.carbon.identity.flow.execution.engine.executor.InFlowExtensionRequestBuilder;
+import org.wso2.carbon.identity.flow.execution.engine.executor.InFlowExtensionResponseProcessor;
 import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 import org.wso2.carbon.identity.flow.execution.engine.listener.FlowExecutionListener;
 import org.wso2.carbon.identity.flow.execution.engine.validation.InputValidationListener;
@@ -77,6 +84,14 @@ public class FlowExecutionEngineServiceComponent {
                     FlowExecutionService.getInstance(), null);
             bundleContext.registerService(FlowExecutionListener.class.getName(), new InputValidationListener(),
                     null);
+
+            // Register In-Flow Extension executor and its action execution services
+            bundleContext.registerService(Executor.class.getName(), new InFlowExtensionExecutor(), null);
+            bundleContext.registerService(ActionExecutionRequestBuilder.class.getName(),
+                    new InFlowExtensionRequestBuilder(), null);
+            bundleContext.registerService(ActionExecutionResponseProcessor.class.getName(),
+                    new InFlowExtensionResponseProcessor(), null);
+
             LOG.debug("Flow Engine service successfully activated.");
         } catch (Throwable e) {
             LOG.error("Error while initiating Flow Engine service", e);
@@ -219,5 +234,45 @@ public class FlowExecutionEngineServiceComponent {
     public void unsetFederatedAssociationManager(FederatedAssociationManager federatedAssociationManager) {
 
         FlowExecutionEngineDataHolder.getInstance().setFederatedAssociationManager(null);
+    }
+
+    @Reference(
+            name = "action.executor.service",
+            service = ActionExecutorService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetActionExecutorService"
+    )
+    protected void setActionExecutorService(ActionExecutorService actionExecutorService) {
+
+        LOG.debug("Setting the ActionExecutorService in the Flow Engine component.");
+        FlowExecutionEngineDataHolder.getInstance().setActionExecutorService(actionExecutorService);
+    }
+
+    protected void unsetActionExecutorService(ActionExecutorService actionExecutorService) {
+
+        LOG.debug("Unsetting the ActionExecutorService in the Flow Engine component.");
+        FlowExecutionEngineDataHolder.getInstance().setActionExecutorService(null);
+    }
+
+    @Reference(
+            name = "claim.metadata.management.service",
+            service = ClaimMetadataManagementService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetClaimMetadataManagementService"
+    )
+    protected void setClaimMetadataManagementService(ClaimMetadataManagementService claimMetadataManagementService) {
+
+        LOG.debug("Setting the ClaimMetadataManagementService in the Flow Engine component.");
+        FlowExecutionEngineDataHolder.getInstance()
+                .setClaimMetadataManagementService(claimMetadataManagementService);
+    }
+
+    protected void unsetClaimMetadataManagementService(
+            ClaimMetadataManagementService claimMetadataManagementService) {
+
+        LOG.debug("Unsetting the ClaimMetadataManagementService in the Flow Engine component.");
+        FlowExecutionEngineDataHolder.getInstance().setClaimMetadataManagementService(null);
     }
 }

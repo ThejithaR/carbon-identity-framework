@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.identity.flow.execution.engine.internal;
 
+import org.wso2.carbon.identity.action.execution.api.service.ActionExecutorService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.claim.metadata.mgt.ClaimMetadataManagementService;
 import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 import org.wso2.carbon.identity.flow.execution.engine.listener.FlowExecutionListener;
 import org.wso2.carbon.identity.flow.mgt.FlowMgtService;
@@ -43,6 +45,8 @@ public class FlowExecutionEngineDataHolder {
     private InputValidationManagementService inputValidationManagementService;
     private ApplicationManagementService applicationManagementService;
     private FederatedAssociationManager federatedAssociationManager;
+    private ActionExecutorService actionExecutorService;
+    private ClaimMetadataManagementService claimMetadataManagementService;
     private List<FlowExecutionListener> flowExecutionListeners = new ArrayList<>();
 
     private FlowExecutionEngineDataHolder() {
@@ -183,5 +187,45 @@ public class FlowExecutionEngineDataHolder {
     public void setFederatedAssociationManager(FederatedAssociationManager federatedAssociationManager) {
 
         this.federatedAssociationManager = federatedAssociationManager;
+    }
+
+    /**
+     * Get the ActionExecutorService instance.
+     *
+     * @return ActionExecutorService instance.
+     */
+    public ActionExecutorService getActionExecutorService() {
+
+        return actionExecutorService;
+    }
+
+    /**
+     * Set the ActionExecutorService instance.
+     *
+     * @param actionExecutorService ActionExecutorService instance.
+     */
+    public void setActionExecutorService(ActionExecutorService actionExecutorService) {
+
+        this.actionExecutorService = actionExecutorService;
+    }
+
+    /**
+     * Get the ClaimMetadataManagementService instance.
+     *
+     * @return ClaimMetadataManagementService instance.
+     */
+    public ClaimMetadataManagementService getClaimMetadataManagementService() {
+
+        return claimMetadataManagementService;
+    }
+
+    /**
+     * Set the ClaimMetadataManagementService instance.
+     *
+     * @param claimMetadataManagementService ClaimMetadataManagementService instance.
+     */
+    public void setClaimMetadataManagementService(ClaimMetadataManagementService claimMetadataManagementService) {
+
+        this.claimMetadataManagementService = claimMetadataManagementService;
     }
 }
