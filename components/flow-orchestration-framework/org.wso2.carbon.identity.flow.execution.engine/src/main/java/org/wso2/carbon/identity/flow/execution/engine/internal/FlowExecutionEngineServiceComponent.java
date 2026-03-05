@@ -31,6 +31,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.identity.action.execution.api.service.ActionExecutionRequestBuilder;
 import org.wso2.carbon.identity.action.execution.api.service.ActionExecutionResponseProcessor;
 import org.wso2.carbon.identity.action.execution.api.service.ActionExecutorService;
+import org.wso2.carbon.identity.action.management.api.service.ActionConverter;
+import org.wso2.carbon.identity.action.management.api.service.ActionDTOModelResolver;
+import org.wso2.carbon.identity.action.management.api.service.ActionManagementService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.claim.metadata.mgt.ClaimMetadataManagementService;
 import org.wso2.carbon.identity.flow.execution.engine.FlowExecutionService;
@@ -38,9 +41,13 @@ import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.executor.InFlowExtensionExecutor;
 import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.executor.InFlowExtensionRequestBuilder;
 import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.executor.InFlowExtensionResponseProcessor;
+import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.management.AccessConfigFlowUpdateInterceptor;
+import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.management.InFlowExtensionActionConverter;
+import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.management.InFlowExtensionActionDTOModelResolver;
 import org.wso2.carbon.identity.flow.execution.engine.listener.FlowExecutionListener;
 import org.wso2.carbon.identity.flow.execution.engine.validation.InputValidationListener;
 import org.wso2.carbon.identity.flow.mgt.FlowMgtService;
+import org.wso2.carbon.identity.flow.mgt.FlowUpdateInterceptor;
 import org.wso2.carbon.identity.input.validation.mgt.services.InputValidationManagementService;
 import org.wso2.carbon.identity.user.profile.mgt.association.federation.FederatedAssociationManager;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -91,6 +98,16 @@ public class FlowExecutionEngineServiceComponent {
                     new InFlowExtensionRequestBuilder(), null);
             bundleContext.registerService(ActionExecutionResponseProcessor.class.getName(),
                     new InFlowExtensionResponseProcessor(), null);
+
+            // Register In-Flow Extension action management services
+            bundleContext.registerService(ActionConverter.class.getName(),
+                    new InFlowExtensionActionConverter(), null);
+            bundleContext.registerService(ActionDTOModelResolver.class.getName(),
+                    new InFlowExtensionActionDTOModelResolver(), null);
+
+            // Register flow update interceptor for access config overrides
+            bundleContext.registerService(FlowUpdateInterceptor.class.getName(),
+                    new AccessConfigFlowUpdateInterceptor(), null);
 
             LOG.debug("Flow Engine service successfully activated.");
         } catch (Throwable e) {
@@ -274,5 +291,24 @@ public class FlowExecutionEngineServiceComponent {
 
         LOG.debug("Unsetting the ClaimMetadataManagementService in the Flow Engine component.");
         FlowExecutionEngineDataHolder.getInstance().setClaimMetadataManagementService(null);
+    }
+
+    @Reference(
+            name = "action.management.service",
+            service = ActionManagementService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetActionManagementService"
+    )
+    protected void setActionManagementService(ActionManagementService actionManagementService) {
+
+        LOG.debug("Setting the ActionManagementService in the Flow Engine component.");
+        FlowExecutionEngineDataHolder.getInstance().setActionManagementService(actionManagementService);
+    }
+
+    protected void unsetActionManagementService(ActionManagementService actionManagementService) {
+
+        LOG.debug("Unsetting the ActionManagementService in the Flow Engine component.");
+        FlowExecutionEngineDataHolder.getInstance().setActionManagementService(null);
     }
 }
