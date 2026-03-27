@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2025-2026, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -46,7 +46,7 @@ import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.managemen
 import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.management.InFlowExtensionActionConverter;
 import org.wso2.carbon.identity.flow.execution.engine.inflow.extension.management.InFlowExtensionActionDTOModelResolver;
 import org.wso2.carbon.identity.flow.execution.engine.listener.FlowExecutionListener;
-import org.wso2.carbon.identity.flow.execution.engine.validation.InputValidationListener;
+import org.wso2.carbon.identity.flow.execution.engine.validation.InputProcessingListener;
 import org.wso2.carbon.identity.flow.mgt.FlowMgtService;
 import org.wso2.carbon.identity.flow.mgt.FlowUpdateInterceptor;
 import org.wso2.carbon.identity.input.validation.mgt.services.InputValidationManagementService;
@@ -90,7 +90,7 @@ public class FlowExecutionEngineServiceComponent {
             BundleContext bundleContext = context.getBundleContext();
             bundleContext.registerService(FlowExecutionService.class.getName(),
                     FlowExecutionService.getInstance(), null);
-            bundleContext.registerService(FlowExecutionListener.class.getName(), new InputValidationListener(),
+            bundleContext.registerService(FlowExecutionListener.class.getName(), new InputProcessingListener(),
                     null);
 
             bundleContext.registerService(Executor.class.getName(), new InFlowExtensionExecutor(), null);
@@ -273,7 +273,7 @@ public class FlowExecutionEngineServiceComponent {
     }
 
     @Reference(
-            name = "claim.metadata.management.service",
+            name = "ClaimMetadataManagementService",
             service = ClaimMetadataManagementService.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
