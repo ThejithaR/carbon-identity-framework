@@ -1372,6 +1372,9 @@
 
     <Webhooks>
         <MaximumWebhooksPerTenant>10</MaximumWebhooksPerTenant>
+        <Registration>
+            <SkipSignupConfirmationIfAccountLockDisabled>true</SkipSignupConfirmationIfAccountLockDisabled>
+        </Registration>
     </Webhooks>
 
     <LocalAuthenticators>
@@ -2988,6 +2991,9 @@
         <EnableLegacySelfRegistrationFlow>false</EnableLegacySelfRegistrationFlow>
         <EnableLegacyPasswordRecoveryFlow>false</EnableLegacyPasswordRecoveryFlow>
         <EnableLegacyInvitedUserRegistrationFlow>false</EnableLegacyInvitedUserRegistrationFlow>
+        <DefaultEnabledFlows>
+            <FlowType>INVITED_USER_REGISTRATION</FlowType>
+        </DefaultEnabledFlows>
         <Registration>
             <DisplayClaimAvailability>false</DisplayClaimAvailability>
         </Registration>
@@ -3013,4 +3019,6 @@
     <AppNativeAuthentication>
         <HandleFailCompletedAuthenticatorStatus>true</HandleFailCompletedAuthenticatorStatus>
     </AppNativeAuthentication>
+    <!-- Config to allow legacy SCIM enterprise user behaviors -->
+    <EnableSCIMLegacyEnterpriseUser>false</EnableSCIMLegacyEnterpriseUser>
 </Server>
