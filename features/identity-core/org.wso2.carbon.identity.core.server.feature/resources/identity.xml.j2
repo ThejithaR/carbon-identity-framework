@@ -2401,6 +2401,7 @@
         </HTTPClient>
         <MaximumActionsPerActionType>{{actions.maximum_actions_per_action_type}}</MaximumActionsPerActionType>
         <ActionRequest>
+            <CaseInsensitiveHeaderFiltering>{{actions.action_request.case_insensitive_header_filtering}}</CaseInsensitiveHeaderFiltering>
             <ExcludedHeaders>
                  {% for header in actions.action_request.excluded_headers %}
                     <Header>{{header}}</Header>
@@ -2519,6 +2520,9 @@
 
     <Webhooks>
         <MaximumWebhooksPerTenant>{{webhooks.maximum_webhooks_per_tenant}}</MaximumWebhooksPerTenant>
+        <Registration>
+            <SkipSignupConfirmationIfAccountLockDisabled>{{webhooks.registration.skip_signup_confirmation_if_account_lock_disabled}}</SkipSignupConfirmationIfAccountLockDisabled>
+        </Registration>
     </Webhooks>
 
     <LocalAuthenticators>
@@ -4992,6 +4996,11 @@
     <AllowLegacyRoleClaimBehaviour>{{legacy_claims.allow_legacy_role_claim_behaviour}}</AllowLegacyRoleClaimBehaviour>
     {% endif %}
 
+     {% if scim2.enable_legacy_enterprise_user is defined %}
+     <!-- Config to allow legacy SCIM enterprise user behavior -->
+     <EnableSCIMLegacyEnterpriseUser>{{scim2.enable_legacy_enterprise_user}}</EnableSCIMLegacyEnterpriseUser>
+     {% endif %}
+
     {% if cache_invalidator.mb.enabled is defined %}
     <CacheInvalidator>
         <MB>
@@ -5154,6 +5163,13 @@
         <EnableLegacySelfRegistrationFlow>{{flow_execution.enable_legacy_self_registration_flow}}</EnableLegacySelfRegistrationFlow>
         <EnableLegacyPasswordRecoveryFlow>{{flow_execution.enable_legacy_password_recovery_flow}}</EnableLegacyPasswordRecoveryFlow>
         <EnableLegacyInvitedUserRegistrationFlow>{{flow_execution.enable_legacy_invited_user_registration_flow}}</EnableLegacyInvitedUserRegistrationFlow>
+        {% if flow_execution.default_enabled_flows is defined %}
+        <DefaultEnabledFlows>
+            {% for flow_type in flow_execution.default_enabled_flows %}
+            <FlowType>{{flow_type}}</FlowType>
+            {% endfor %}
+        </DefaultEnabledFlows>
+        {% endif %}
         <Registration>
             <DisplayClaimAvailability>{{flow_execution.registration.display_claim_availability}}</DisplayClaimAvailability>
             <DefaultUserStore>{{flow_execution.registration.default_user_store}}</DefaultUserStore>

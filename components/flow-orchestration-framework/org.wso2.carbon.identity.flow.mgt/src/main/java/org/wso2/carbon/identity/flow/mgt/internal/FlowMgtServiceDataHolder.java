@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.flow.mgt.internal;
 
+import org.wso2.carbon.identity.compatibility.settings.core.CompatibilitySettingsManager;
 import org.wso2.carbon.identity.configuration.mgt.core.ConfigurationManager;
 import org.wso2.carbon.identity.flow.mgt.FlowUpdateInterceptor;
 import org.wso2.carbon.identity.organization.management.service.OrganizationManager;
@@ -35,7 +36,7 @@ public class FlowMgtServiceDataHolder {
     private OrganizationManager organizationManager;
     private OrgResourceResolverService orgResourceResolverService;
     private ConfigurationManager configurationManager;
-    private final List<FlowUpdateInterceptor> flowUpdateInterceptors = new ArrayList<>();
+    private CompatibilitySettingsManager compatibilitySettingsManager;
 
     private static final FlowMgtServiceDataHolder INSTANCE = new FlowMgtServiceDataHolder();
 
@@ -78,18 +79,13 @@ public class FlowMgtServiceDataHolder {
         this.configurationManager = configurationManager;
     }
 
-    public List<FlowUpdateInterceptor> getFlowUpdateInterceptors() {
+    public CompatibilitySettingsManager getCompatibilitySettingsManager() {
 
-        return Collections.unmodifiableList(flowUpdateInterceptors);
+        return compatibilitySettingsManager;
     }
 
-    public void addFlowUpdateInterceptor(FlowUpdateInterceptor interceptor) {
+    public void setCompatibilitySettingsManager(CompatibilitySettingsManager compatibilitySettingsManager) {
 
-        flowUpdateInterceptors.add(interceptor);
-    }
-
-    public void removeFlowUpdateInterceptor(FlowUpdateInterceptor interceptor) {
-
-        flowUpdateInterceptors.remove(interceptor);
+        this.compatibilitySettingsManager = compatibilitySettingsManager;
     }
 }
